@@ -1,7 +1,6 @@
 from stable_baselines3 import PPO
 import wandb
 from wandb.integration.sb3 import WandbCallback
-from stable_baselines3.common.callbacks import EveryNTimesteps
 
 from callbacks import WandBVideoCallback
 from config import config
@@ -20,7 +19,9 @@ model = PPO(
     policy_kwargs=config["policy_kwargs"],
     verbose=config["verbose"],
     device=config["device"],
-    tensorboard_log=f"runs/{run.id}"
+    tensorboard_log=f"runs/{run.id}",
+    n_steps=config["rollout_steps"],
+    batch_size=config["minibatch_size"]
 )
 try:
     model.learn(
@@ -32,10 +33,7 @@ try:
                 model_save_freq=0,  # 100
                 gradient_save_freq=0,  # 100
             ),
-            EveryNTimesteps(
-                n_steps=config["video_interval"],
-                callback=WandBVideoCallback(),
-            )
+            WandBVideoCallback(),
         ],
     )
 except Exception as e:

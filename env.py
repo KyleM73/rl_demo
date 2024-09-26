@@ -51,16 +51,16 @@ def reward(x: np.ndarray, u: np.ndarray) -> np.ndarray:
     """
     # task rewards
     pose_error = np.linalg.norm(x[:, 6:8] - x[:, 0:2], axis=1)
-    tracking_std = 20
+    tracking_std = 10
     goal_tracking = np.exp(-pose_error ** 2 / tracking_std)
-    goal_reached = np.where(pose_error < 0.5, 1, 0)
+    goal_reached = np.where(pose_error < 0.1, 1, 0)
 
     # regularizing rewards
     effort_penalty = -np.linalg.norm(u, axis=1) ** 2
     action_rate = -np.linalg.norm(u - x[:, 4:6], axis=1)
 
-    return 5 * goal_tracking + 100 * goal_reached + \
-        0.000 * effort_penalty + 0.000 * action_rate
+    return 5 * goal_tracking + 5 * goal_reached + \
+        0.0001 * effort_penalty + 0.0001 * action_rate
 
 
 class RK4Env(VecEnv):
@@ -185,11 +185,11 @@ class RK4Env(VecEnv):
     def reset_idx(self, indices: VecEnvIndices = None) -> VecEnvObs:
         idx = self._get_indices(indices)
         if 0 in idx and self.counter > 5:
-            self.obs_hist = self.obs_hist[:self.counter]
+            obs_plot = self.obs_hist[:self.counter]
             fig, ax = plt.subplots()
-            ax.plot(self.obs_hist[:, 0], self.obs_hist[:, 1])  # trajectory
-            ax.scatter(self.obs_hist[0, 0], self.obs_hist[0, 1])  # ic
-            ax.scatter(self.obs_hist[0, 6], self.obs_hist[0, 7])  # goal
+            ax.plot(obs_plot[:, 0], obs_plot[:, 1])  # trajectory
+            ax.scatter(obs_plot[0, 0], obs_plot[0, 1])  # ic
+            ax.scatter(obs_plot[0, 6], obs_plot[0, 7])  # goal
             self.plot = fig
             self.counter = 0
         x0 = self.rng.uniform(
