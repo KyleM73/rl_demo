@@ -8,10 +8,14 @@ config = {
     "policy_dt": 0.01,
     "max_effort": 100,
     "range": {
+        "x": (-10, 10),
+        "y": (0, 10),
+    },
+    "ic_range": {
         "x": (-5, 5),
-        "y": (-5, 5),
+        "y": (8, 10),
         "vx": (-1, 1),
-        "vy": (-1, 1),
+        "vy": (-1, 0),
     },
     "target_distance": 0.1,
     "target_speed": 0.0,
